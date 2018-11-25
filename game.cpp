@@ -67,25 +67,17 @@ int N=8;
 typedef vector<string> BD;
 deque<BD> Q;
 
-void solve() {
-}
-
-vector<string> temp={
-  "........",
-  "........",
-  "........",
-  "...12...",
-  "...21...",
-  "........",
-  "........",
-  "........"
-};
-
 void show(BD cur) {
+  REP(_,N+8) cout<<'-';
+  cout<<endl;
+  
   cout<<string(2,' ');
   REP(i,N) cout<<i;
   cout<<endl;
   REP(i,N) cout<<i<<" "<<cur[i]<<endl;
+  
+  REP(_,N+8) cout<<'-';
+  cout<<endl;
 }
 
 void show() {
@@ -121,7 +113,7 @@ int doturn(int r, int c, int cl, int di, int dj, BD &cur) {
   return res;
 }
 
-pair<int,BD> put(int r, int c, int cl, BD cur) {
+pair<int,BD> put(int r, int c, int cl, BD cur, bool msg=true) {
   BD res=cur;
   char my='0'+cl;
   res[r][c]=my;
@@ -133,7 +125,7 @@ pair<int,BD> put(int r, int c, int cl, BD cur) {
   int vert2[2]={0, 0};
   REP(i,2)cnt+=doturn(r,c,cl,vert1[i],vert2[i],res);
   cs[0]=cnt;
-  cout<<"vertical "<<cnt<<endl;
+  if(msg)cout<<"vertical "<<cnt<<endl;
   
   cnt=0;
   int hor1[2]={0, 0};
@@ -143,7 +135,7 @@ pair<int,BD> put(int r, int c, int cl, BD cur) {
   
   cs[1]=cnt;
   
-  cout<<"horizontal "<<cnt<<endl;
+  if(msg)cout<<"horizontal "<<cnt<<endl;
   
   cnt=0;
   int diag1[4]={1, 1,-1,-1};
@@ -151,10 +143,10 @@ pair<int,BD> put(int r, int c, int cl, BD cur) {
 
   REP(i,4) cnt+=doturn(r,c,cl,diag1[i],diag2[i],res);
   
-  cout<<"diagonal "<<cnt<<endl;
+  if(msg)cout<<"diagonal "<<cnt<<endl;
 
   cs[2]=cnt;
-  if(cs[0]==0&&cs[1]==0&&cs[2]==0) cout<<"!!! warn: no reverse"<<endl;
+  if(msg&&cs[0]==0&&cs[1]==0&&cs[2]==0) cout<<"!!! warn: no reverse"<<endl;
   
   return {cs[0]+cs[1]+cs[2],res};
 }
@@ -208,6 +200,27 @@ void test() {
   assert(p1.second==b1e);
 }
 
+II solve() {
+  BD cur=Q.back();
+  
+  set<III> S;
+  
+  REP(i,N)REP(j,N) if(cur[i][j]=='.') {
+    auto p=put(i,j,nextTurn(),cur,false);
+    if(p.first>0) S.emplace(p.first,i,j);
+  }
+  if(SZ(S)==0) {
+    return {-1,-1};
+  }
+  
+  auto it=S.rbegin();
+  int x,r,c; tie(x,r,c)=*it;
+  
+  cout<<"optimal move: "<<r<<", "<<c<<" ("<<x<<" turns)"<<endl;
+  
+  return {r,c};
+}
+
 int main() {
   test();
   
@@ -239,7 +252,8 @@ int main() {
     } else if(com=='C') {
       Q.pop_back();
     } else if(com=='S') {
-      solve();
+      auto p=solve();
+      if(p.first==-1) cout<<"!!! No more turn. "<<nextTurn()<<" lost."<<endl;
     }
     if(SZ(Q)>10) Q.pop_front();
     
