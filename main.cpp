@@ -113,6 +113,12 @@ int doturn(int r, int c, int cl, int di, int dj, BD &cur) {
   return res;
 }
 
+int countboard(BD &cur, char c) {
+  int res=0;
+  REP(i,N) res+=count(ALL(cur[i]),c);
+  return res;
+}
+
 pair<int,BD> put(int r, int c, int cl, BD cur, bool msg=true) {
   BD res=cur;
   char my='0'+cl;
@@ -153,9 +159,7 @@ pair<int,BD> put(int r, int c, int cl, BD cur, bool msg=true) {
 
 int nextTurn() {
   BD cur=Q.back();
-  int p=0;
-  REP(i,N) p+=count(ALL(cur[i]),'.');
-  int t=(p%2);
+  int t=(countboard(cur, '.')%2);
   
   return t;
 }
@@ -165,10 +169,8 @@ void info() {
   cout<<"next turn: "<<nextTurn()<<endl;
   
   BD cur=Q.back();
-  int c0=0;
-  REP(i,N) c0+=count(ALL(cur[i]),'0');
-  int c1=0;
-  REP(i,N) c1+=count(ALL(cur[i]),'1');
+  int c0=countboard(cur,'0');
+  int c1=countboard(cur,'1');
 
   cout<<c0<<" vs "<<c1<<endl;
 }
@@ -195,7 +197,7 @@ void test() {
     ".1101011",
     ".1111111"
   };
-  auto p1=put(4,4,1,b1);
+  auto p1=put(4,4,1,b1,false);
   assert(p1.first==16);
   assert(p1.second==b1e);
 }
@@ -236,11 +238,23 @@ int main() {
   info();
 
   while(true) {
+    BD cur=Q.back();
+    int ecnt=countboard(cur, '.');
+    if(ecnt==0) {
+      int c0=countboard(cur,'0'),c1=countboard(cur,'1');
+      if(c0>c1) {
+        cout<<"0 wins";
+      } else if(c0<c1) {
+        cout<<"1 wins";
+      } else {
+        cout<<"draw";
+      }
+      cout<<" ("<<c0<<" vs "<<c1<<")"<<endl;
+    }
+    
     char com; cin>>com;
     if(com=='P') {
       int r,c; cin>>r>>c;
-      
-      BD cur=Q.back();
       if(cur[r][c]!='.') {
         cout<<"!!! warn already exists at "<<r<<","<<c<<endl;
         continue;
@@ -262,3 +276,5 @@ int main() {
   
   return 0;
 }
+
+g++ -std=c++14 -Wall -O2 -D_GLIBCXX_DEBUG -fsanitize=address main.cpp && ./a.out
